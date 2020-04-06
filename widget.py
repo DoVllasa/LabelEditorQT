@@ -20,10 +20,10 @@ class Ui_Widget(object):
     def setupUi(self, Widget):
         if Widget.objectName():
             Widget.setObjectName(u"Widget")
-        Widget.resize(800, 600)
+        Widget.resize(901, 647)
         self.horizontalLayoutWidget = QWidget(Widget)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(19, 29, 761, 561))
+        self.horizontalLayoutWidget.setGeometry(QRect(19, 29, 861, 601))
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -38,30 +38,30 @@ class Ui_Widget(object):
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
-        self.armButton = QPushButton(self.horizontalLayoutWidget)
-        self.armButton.setObjectName(u"armButton")
+        self.restButton = QPushButton(self.horizontalLayoutWidget)
+        self.restButton.setObjectName(u"restButton")
 
-        self.verticalLayout.addWidget(self.armButton)
+        self.verticalLayout.addWidget(self.restButton)
 
         self.unknownButton = QPushButton(self.horizontalLayoutWidget)
         self.unknownButton.setObjectName(u"unknownButton")
 
         self.verticalLayout.addWidget(self.unknownButton)
 
-        self.restButton = QPushButton(self.horizontalLayoutWidget)
-        self.restButton.setObjectName(u"restButton")
+        self.transaprentBagButton = QPushButton(self.horizontalLayoutWidget)
+        self.transaprentBagButton.setObjectName(u"transaprentBagButton")
 
-        self.verticalLayout.addWidget(self.restButton)
+        self.verticalLayout.addWidget(self.transaprentBagButton)
 
         self.flatButton = QPushButton(self.horizontalLayoutWidget)
         self.flatButton.setObjectName(u"flatButton")
 
         self.verticalLayout.addWidget(self.flatButton)
 
-        self.pouchButton = QPushButton(self.horizontalLayoutWidget)
-        self.pouchButton.setObjectName(u"pouchButton")
+        self.bundleButton = QPushButton(self.horizontalLayoutWidget)
+        self.bundleButton.setObjectName(u"bundleButton")
 
-        self.verticalLayout.addWidget(self.pouchButton)
+        self.verticalLayout.addWidget(self.bundleButton)
 
         self.bagButton = QPushButton(self.horizontalLayoutWidget)
         self.bagButton.setObjectName(u"bagButton")
@@ -88,11 +88,11 @@ class Ui_Widget(object):
 
     def retranslateUi(self, Widget):
         Widget.setWindowTitle(QCoreApplication.translate("Widget", u"Widget", None))
-        self.armButton.setText(QCoreApplication.translate("Widget", u"Arm", None))
-        self.unknownButton.setText(QCoreApplication.translate("Widget", u"Unkown", None))
         self.restButton.setText(QCoreApplication.translate("Widget", u"Rest", None))
+        self.unknownButton.setText(QCoreApplication.translate("Widget", u"Unkown", None))
+        self.transaprentBagButton.setText(QCoreApplication.translate("Widget", u"transparent bag", None))
         self.flatButton.setText(QCoreApplication.translate("Widget", u"Flat", None))
-        self.pouchButton.setText(QCoreApplication.translate("Widget", u"Pouch", None))
+        self.bundleButton.setText(QCoreApplication.translate("Widget", u"Bundle", None))
         self.bagButton.setText(QCoreApplication.translate("Widget", u"Bag", None))
         self.boxButton.setText(QCoreApplication.translate("Widget", u"Box", None))
     # retranslateUi
