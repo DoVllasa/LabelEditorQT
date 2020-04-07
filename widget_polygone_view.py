@@ -4,8 +4,9 @@ from enum import Enum
 from functools import partial
 from os import listdir
 from os.path import isfile, join
+from warnings import warn
 from PySide2 import QtWidgets, QtGui, QtCore
-from PySide2.QtWidgets import QWidget
+from PySide2.QtWidgets import QWidget, QMainWindow
 from PySide2.QtGui import QColor
 from widget import Ui_Widget
 
@@ -60,7 +61,9 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
         self.setAcceptHoverEvents(True)
 
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        # self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        # self.setFlag(QtWidgets.QGraphicsItem.ItemPositionChange, True)
+        # self.setFlag(QtWidgets.QGraphicsItem.ItemSelectedHasChanged, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges, True)
         self.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         # self.setBrush(QtGui.QColor(63, 136, 143, 100))
@@ -92,7 +95,11 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
             self.mPoints[i] = self.mapFromScene(p)
             # self.mPoints[i] = p
             self.setPolygon(QtGui.QPolygonF(self.mPoints))
-            print('POLY', self.mPoints)
+            # print('POLY', self.mapFromScene(p))
+            # print('POLY', self.mPoints[:-1])
+            # if self.mouseReleaseEvent(self):
+            #     print('POLYAFTERRELEASE', self.mPoints)
+
 
     def move_item(self, index, pos):
         if 0 <= index < len(self.mItems):
@@ -121,7 +128,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItems = []
         self.imageName = ''
         self.polygonPoints = []
-        self.colorCodeDictonary = {}
+        self.savedCategoryDictonary = {}
         self.getColorOfPoly = []
         self.categorizedPolys = {}
 
@@ -131,25 +138,25 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.imageName = filename
         if filename in imagePolygon:
             imagePolyData = imagePolygon[filename]
-            self.colorCodeDictonary = imagePolyData
-            if Categorization.Box.value in self.colorCodeDictonary:
+            self.savedCategoryDictonary = imagePolyData
+            if Categorization.Box.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Box.value)
-            if Categorization.Bag.value in self.colorCodeDictonary:
+            if Categorization.Bag.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Bag.value)
-            if Categorization.Bundle.value in self.colorCodeDictonary:
+            if Categorization.Bundle.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Bundle.value)
-            if Categorization.Unknown.value in self.colorCodeDictonary:
+            if Categorization.Unknown.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Unknown.value)
-            if Categorization.Rest.value in self.colorCodeDictonary:
+            if Categorization.Rest.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Rest.value)
-            if Categorization.Flat.value in self.colorCodeDictonary:
+            if Categorization.Flat.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.Flat.value)
-            if Categorization.TransparentBag.value in self.colorCodeDictonary:
+            if Categorization.TransparentBag.value in self.savedCategoryDictonary:
                 self.createPoly(Categorization.TransparentBag.value)
 
     def createPoly(self, categorizationOfPolygone):
         self.categorizedPolys = {}
-        for i in self.colorCodeDictonary[categorizationOfPolygone]:
+        for i in self.savedCategoryDictonary[categorizationOfPolygone]:
             self.polygonItem = PolygonAnnotation()
             self.setPolygonColor(categorizationOfPolygone)
             self.addItem(self.polygonItem)
@@ -194,35 +201,28 @@ class ImageScene(QtWidgets.QGraphicsScene):
             if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
                 if self.getColorOfPoly[0].getRgb() == QColor(255, 0, 0, 150).getRgb():
                     self.onCreateColorList(Categorization.Box.value) # Red
-
                 elif self.getColorOfPoly[0].getRgb() == QColor(0, 0, 255, 150).getRgb():
                     self.onCreateColorList(Categorization.Bag.value) # Blue
-
                 elif self.getColorOfPoly[0].getRgb() == QColor(0, 255, 0, 150).getRgb():
                     self.onCreateColorList(Categorization.Bundle.value) # Green
-
                 elif self.getColorOfPoly[0].getRgb() == QColor(255, 127, 36, 150).getRgb():
                     self.onCreateColorList(Categorization.Unknown.value) # Orange
-
                 elif self.getColorOfPoly[0].getRgb() == QColor(155, 48, 255, 150).getRgb():
-                    self.onCreateColorList(Categorization.Rest.value)# Purple
-
+                    self.onCreateColorList(Categorization.Rest.value) # Purple
                 elif self.getColorOfPoly[0].getRgb() == QColor(255, 255, 0, 150).getRgb():
                     self.onCreateColorList(Categorization.Flat.value) # Yellow
-
                 elif self.getColorOfPoly[0].getRgb() == QColor(0, 191, 255, 150).getRgb():
                     self.onCreateColorList(Categorization.TransparentBag.value) # LightBlue
 
-
-                print('CODELIST', self.colorCodeDictonary)
+                print('CODELIST', self.savedCategoryDictonary)
 
     def onCreateColorList(self, var):
-        if var not in self.colorCodeDictonary:
+        if var not in self.savedCategoryDictonary:
             polyTmpPointsCoord = []
             polyTmpPointsCoord.append(self.polygonPoints)
-            self.colorCodeDictonary[var] = polyTmpPointsCoord
-        elif self.polygonPoints not in self.colorCodeDictonary[var]:
-            self.colorCodeDictonary[var].append(self.polygonPoints)
+            self.savedCategoryDictonary[var] = polyTmpPointsCoord
+        elif self.polygonPoints not in self.savedCategoryDictonary[var]:
+            self.savedCategoryDictonary[var].append(self.polygonPoints)
         self.getColorOfPoly = []
         self.polygonPoints = []
 
@@ -245,38 +245,42 @@ class ImageScene(QtWidgets.QGraphicsScene):
     def removePolygon(self):
         categorizationType = None
         if self.polygonItem:
-            for k in self.selectedItems():
-                allPointsFromItem = k.mPoints[:-1]
+            for items in self.selectedItems():
+                try:
+                    allCoordinatesFromItem = items.mPoints[:-1]
+                except AttributeError:
+                    warn('You tried to remove before finishing')
+                    return
 
-                if k.brush().color().getRgb() == QColor(255, 0, 0, 150).getRgb():
+                if items.brush().color().getRgb() == QColor(255, 0, 0, 150).getRgb():
                     categorizationType = Categorization.Box.value  # Red
-                elif k.brush().color().getRgb() == QColor(0, 0, 255, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(0, 0, 255, 150).getRgb():
                     categorizationType =Categorization.Bag.value  # Blue
-                elif k.brush().color().getRgb() == QColor(0, 255, 0, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(0, 255, 0, 150).getRgb():
                     categorizationType = Categorization.Bundle.value  # Green
-                elif k.brush().color().getRgb() == QColor(255, 127, 36, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(255, 127, 36, 150).getRgb():
                     categorizationType =Categorization.Unknown.value  # Orange
-                elif k.brush().color().getRgb() == QColor(155, 48, 255, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(155, 48, 255, 150).getRgb():
                     categorizationType = Categorization.Rest.value  # Purple
-                elif k.brush().color().getRgb() == QColor(255, 255, 0, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(255, 255, 0, 150).getRgb():
                     categorizationType = Categorization.Flat.value  # Yellow
-                elif k.brush().color().getRgb() == QColor(0, 191, 255, 150).getRgb():
+                elif items.brush().color().getRgb() == QColor(0, 191, 255, 150).getRgb():
                     categorizationType = Categorization.TransparentBag.value  # LightBlue
 
                 newCoordFromPoly = []
-                for j in self.colorCodeDictonary[categorizationType]:
-                    if allPointsFromItem != j:
-                        newCoordFromPoly.append(j)
-                self.colorCodeDictonary[categorizationType] = newCoordFromPoly
-                while len(k.mPoints) > 0:
-                    k.removeLastPoint()
-                self.removeItem(k)
+                for itemsCoordinates in self.savedCategoryDictonary[categorizationType]:
+                    if allCoordinatesFromItem != itemsCoordinates:
+                        newCoordFromPoly.append(itemsCoordinates)
+                self.savedCategoryDictonary[categorizationType] = newCoordFromPoly
+                while len(items.mPoints) > 0:
+                    items.removeLastPoint()
+                # self.removeItem(items)
             for i in self.selectedItems():
                 i.removeLastPoint()
-                self.removeItem(i)
+                # self.removeItem(i)
 
     def removeAllPolygone(self):
-        addToImagePoly(self.colorCodeDictonary, self.imageName)
+        addToImagePoly(self.savedCategoryDictonary, self.imageName)
         for k in self.polygonItems:
             while len(k.mPoints) > 0:
                 k.removeLastPoint()
@@ -284,9 +288,9 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItems = []
         self.polygonPoints = []
         self.allPolygonPointsFromImg = []
-        self.colorCodeDictonary = {}
-        for i in self.selectedItems():
-            self.removeItem(i)
+        self.savedCategoryDictonary = {}
+        # for i in self.selectedItems():
+        #     self.removeItem(i)
 
 
 imagePolygon = {}
@@ -375,8 +379,6 @@ class WidgetWindow(QWidget):
                             activated=partial(self.mScene.setCurrentInstruction, Instructions.NoInstruction,
                                               Categorization.Box.value))
 
-        QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_X), self.mView, self.mScene.removePolygon)
-
         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_A), self.mView,
                             activated=partial(self.mScene.setCurrentInstruction, Instructions.PolygonInstruction,
                                               Categorization.Box.value))
@@ -411,8 +413,6 @@ class WidgetWindow(QWidget):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def setColorCode(self, catrgory: str):
-        # self.colorNum = catrgory
-        # print(self.colorNum)
         self.mScene.setCurrentInstruction(Instructions.PolygonInstruction, catrgory)
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -454,18 +454,17 @@ class WidgetWindow(QWidget):
             self.mView.fitInView(self.mScene.imageItem, QtCore.Qt.KeepAspectRatio)
             self.mView.centerOn(self.mScene.imageItem)
 
-
+#
 # class MainWindow(QMainWindow):
 #     def __init__(self, parent=None):
 #         super(MainWindow, self).__init__(parent)
 
 
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    # m = MainWindow()
-    # w = WidgetWindow(m)
-    # m.show()
-    w = WidgetWindow()
-    w.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QtWidgets.QApplication(sys.argv)
+#     # m = MainWindow()
+#     # w = WidgetWindow(m)
+#     # m.show()
+#     w = WidgetWindow()
+#     w.show()
+#     sys.exit(app.exec_())
