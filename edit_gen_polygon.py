@@ -1,23 +1,17 @@
-import sys
-
-from PySide2 import QtWidgets
-import widget_polygone_view
+from widget_polygone_view import *
 
 
 class PolygonEditor(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(PolygonEditor, self).__init__(parent)
-        print('EDITOR', widget_polygone_view.imagePolygon)
-
-        w = widget_polygone_view.WidgetWindow(self)
-        w.show()
+    def __init__(self):
+        super(PolygonEditor, self).__init__()
+        # self.callDict(dictonary)
+        WidgetWindow(self)
 
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    m = PolygonEditor()
-    # w = WidgetWindow(m)
-    m.resize(1000, 600)
-    m.show()
+    p = PolygonEditor()
+    p.resize(1000, 600)
+    p.show()
     sys.exit(app.exec_())
