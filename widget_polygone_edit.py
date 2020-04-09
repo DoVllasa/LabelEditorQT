@@ -256,3 +256,7 @@ class Categorization(Enum):
     Rest = 'Rest'
     Flat = 'Flat'
     TransparentBag = 'Transparent bag'
+
+
+''' Mit item.mPoints[0].x() oder y(), bekommt man die reinen float numbers, wichtig, wenn man später die reinen Koordinaten benötigt
+'''
