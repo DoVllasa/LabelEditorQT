@@ -2,7 +2,6 @@ from functools import partial
 from os import listdir
 import os
 from os.path import isfile, join
-import sys
 from PySide2 import QtWidgets, QtGui, QtCore
 from PySide2.QtWidgets import QWidget
 from widget import Ui_Widget

@@ -1,17 +1,7 @@
-import os
-import sys
 from enum import Enum
-from functools import partial
-from os import listdir
-from os.path import isfile, join
 from warnings import warn
 from PySide2 import QtWidgets, QtGui, QtCore
 import copy
-
-from PySide2.QtWidgets import QWidget, QMainWindow
-from PySide2.QtGui import QColor
-from widget import Ui_Widget
-import edit_gen_polygon
 
 
 class PolygonItemsDisplay(QtWidgets.QGraphicsPathItem):
@@ -65,11 +55,8 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
 
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
-        # self.setFlag(QtWidgets.QGraphicsItem.ItemPositionChange, True)
-        # self.setFlag(QtWidgets.QGraphicsItem.ItemSelectedHasChanged, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges, True)
         self.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        # self.setBrush(QtGui.QColor(63, 136, 143, 100))
         self.mItems = []
         self.test =[]
 
@@ -96,12 +83,8 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
     def movePoint(self, i, p):
         if 0 <= i < len(self.mPoints):
             self.mPoints[i] = self.mapFromScene(p)
-            # self.mPoints[i] = p
             self.setPolygon(QtGui.QPolygonF(self.mPoints))
-            # print('POLY', self.mapFromScene(p))
-            # print('POLY', self.mPoints[:-1])
-            # if self.mouseReleaseEvent(self):
-            #     print('POLYAFTERRELEASE', self.mPoints)
+
 
 
     def move_item(self, index, pos):
@@ -111,7 +94,6 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
             item.setPos(pos)
             self.movePoint(index, pos)
             self.test.append(pos)
-            # print('MPOINTSBEVOR', pos)
             item.setEnabled(True)
 
     def itemChange(self, change, value):
@@ -130,9 +112,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.currentInstruction = Instructions.NoInstruction
         self.polygonItems = []
         self.imageName = ''
-        self.polygonPoints = []
         self.savedCategoryDictonary = {}
-        self.getColorOfPoly = []
         self.categorizedPolys = {}
         self.colorDefinition = {}
         self.colorDefinition[Categorization.Box.value] = QtGui.QColor(255, 0, 0, 150)
@@ -160,7 +140,6 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.categorizedPolys = {}
         for i in self.savedCategoryDictonary[categorizationOfPolygone]:
             self.polygonItem = PolygonAnnotation()
-            # self.setPolygonColor(categorizationOfPolygone)
             self.polygonItem.setBrush(self.colorDefinition[categorizationOfPolygone])
             self.addItem(self.polygonItem)
             self.polygonItems.append(self.polygonItem)
@@ -172,7 +151,6 @@ class ImageScene(QtWidgets.QGraphicsScene):
                 createTmpListCoord = []
                 createTmpListCoord.append(i)
                 self.categorizedPolys[categorizationOfPolygone] = createTmpListCoord
-            self.polygonPoints = []
 
 
     def setCurrentInstruction(self, instruction, category: str):
@@ -193,54 +171,12 @@ class ImageScene(QtWidgets.QGraphicsScene):
                             polyTmpPointsCoord = []
                             polyTmpPointsCoord.append(listTest)
                             self.savedCategoryDictonary[k] = polyTmpPointsCoord
-                            # self.savedCategoryDictonary[k] = listTest
                             break
                         elif listTest not in self.savedCategoryDictonary[k]:
                             print('FAIL')
-                            # listTest = copy.copy(i.mPoints)
                             self.savedCategoryDictonary[k].append(listTest)
                             break
         print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
-            # self.getColorOfPoly.append(self.polygonItem.brush().color())
-
-        # if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
-        # if len(self.polygonPoints) != 0:
-        # for i in self.polygonItems:
-        #     if len(i.mPoints) != 0:
-        #         for k in self.colorDefinition.keys():
-        #             if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-        #                 if k not in self.savedCategoryDictonary:
-        #                     polyTmpPointsCoord = []
-        #                     polyTmpPointsCoord.append(i.mPoints)
-        #                     self.savedCategoryDictonary[k] = polyTmpPointsCoord
-        #                     break
-        #                 elif i.mPoints not in self.savedCategoryDictonary[k]:
-        #                     self.savedCategoryDictonary[k].append(i.mPoints)
-        #                     break
-
-
-
-    #     if self.currentInstruction == Instructions.PolygonInstruction:
-    #         self.getColorOfPoly.append(self.polygonItem.brush().color())
-    #
-    #     if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
-    #         for i in self.colorDefinition.keys():
-    #             if self.colorDefinition[i].getRgb() == self.getColorOfPoly[0].getRgb():
-    #                 self.onCreateColorList(i)
-    #                 break
-    #
-    #             # print('CODELIST', self.savedCategoryDictonary)
-    #
-    # def onCreateColorList(self, var):
-    #     if var not in self.savedCategoryDictonary:
-    #         polyTmpPointsCoord = []
-    #         polyTmpPointsCoord.append(self.polygonPoints)
-    #         self.savedCategoryDictonary[var] = polyTmpPointsCoord
-    #     elif self.polygonPoints not in self.savedCategoryDictonary[var]:
-    #         self.savedCategoryDictonary[var].append(self.polygonPoints)
-    #     print(self.savedCategoryDictonary)
-    #     self.getColorOfPoly = []
-    #     self.polygonPoints = []
 
     def mousePressEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -251,7 +187,6 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItem.removeLastPoint()
         self.polygonItem.addPoint(position)
         self.polygonItem.addPoint(position)
-        # self.polygonPoints.append(position)
 
     def mouseMoveEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -263,11 +198,10 @@ class ImageScene(QtWidgets.QGraphicsScene):
         if self.polygonItem:
             for items in self.selectedItems():
                 try:
-                    allCoordinatesFromItem = items.mPoints[:-1]
+                    allCoordinatesFromItem = items.mPoints
                 except AttributeError:
                     warn('You tried to remove before finishing')
                     return
-
                 for i in self.colorDefinition.keys():
                     if self.colorDefinition[i].getRgb() == items.brush().color().getRgb():
                         categorizationType = i
@@ -282,33 +216,24 @@ class ImageScene(QtWidgets.QGraphicsScene):
                     del self.savedCategoryDictonary[categorizationType]
                 while len(items.mPoints) > 0:
                     items.removeLastPoint()
-                # self.removeItem(items)
             for i in self.selectedItems():
                 i.removeLastPoint()
-                # self.removeItem(i)
 
     def removeAllPolygone(self):
-        # print('POLYGONINFOS', i.mPoints)
-        # print('FARBCODE', i.brush().color().getRgb())
-
         setInformationFromImage(self.savedCategoryDictonary, self.imageName)
-
         for k in self.polygonItems:
             while len(k.mPoints) > 0:
                 k.removeLastPoint()
             self.removeItem(k)
         self.savedCategoryDictonary = {}
         self.polygonItems = []
-        # for i in self.selectedItems():
-        #     self.removeItem(i)
-
-
 
 
 imagePolygon = {}
 
 def setInformationFromImage(catgorizedDict: dict, name: str):
-    imagePolygon[name] = catgorizedDict
+    if name != '':
+        imagePolygon[name] = catgorizedDict
 
     print('ImagePoly', imagePolygon)
     # edit_gen_polygon.PolygonEditor.callDict(imagePolygon)
@@ -331,158 +256,3 @@ class Categorization(Enum):
     Rest = 'Rest'
     Flat = 'Flat'
     TransparentBag = 'Transparent bag'
-
-
-# class WidgetWindow(QWidget):
-#     factor = 2.0
-#
-#     def __init__(self, parent=None):
-#         super(WidgetWindow, self).__init__(parent)
-#         self.ui = Ui_Widget()
-#         self.ui.setupUi(self)
-#         self.setWindowTitle("Truth Data generator Parcels")
-#         self.ui.graphicsView.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.SmoothPixmapTransform)
-#         self.ui.graphicsView.setMouseTracking(True)
-#         self.mView = self.ui.graphicsView
-#         self.mScene = ImageScene(self)
-#         self.mView.setScene(self.mScene)
-#         self.counterImages = 0
-#         self.colorNum = 0
-#         # self.directory = '/Users/dominim/Desktop/TestData'
-#         self.directory = '/Users/dominimvllasa/Desktop/TestData'
-#         # self.directory = '/home/dominim/Desktop/Data/wa1122/wa1122/png_rgb/t000'
-#         self.filenames = [f for f in listdir(self.directory) if isfile(join(os.path.realpath(self.directory), f))]
-#         self.realpathImages = []
-#         for index, filename in enumerate(self.filenames):
-#             self.realpathImages.append(self.directory + '/' + filename)
-#         self.load_image(Instructions.BackItem)
-#         # self.ui.nextImageButton.clicked.connect(partial(self.load_image, Instructions.NextItem.value))
-#         # self.ui.backButton.clicked.connect(partial(self.load_image, Instructions.BackItem.value))
-#         # self.ui.removeButton.clicked.connect(self.mScene.removePolygon)
-#
-# # ----------------------------------------------------------------------------------------------------------------------
-# #   initialize Buttons for drawing Polygone
-# # ----------------------------------------------------------------------------------------------------------------------
-#
-#         self.ui.boxButton.setStyleSheet("color: #FF0000")  # Red 255, 0, 0
-#         self.ui.bagButton.setStyleSheet("color: #0000FF")  # blue 0, 0, 255
-#         self.ui.bundleButton.setStyleSheet("color: #00FF00")  # Green 0, 255, 0
-#         self.ui.unknownButton.setStyleSheet("color: #FF7F24")  # orange 255, 127, 36
-#         self.ui.restButton.setStyleSheet("color: #9B30FF")  # purple 155, 48, 255
-#         self.ui.flatButton.setStyleSheet("color: #FFFF00")  # pink 255, 255, 0
-#         self.ui.transaprentBagButton.setStyleSheet("color: #00BFFF")  # Lightblue 0, 191, 255
-#
-#         self.ui.boxButton.clicked.connect(partial(self.setColorCode, Categorization.Box.value))
-#         self.ui.bagButton.clicked.connect(partial(self.setColorCode, Categorization.Bag.value))
-#         self.ui.bundleButton.clicked.connect(partial(self.setColorCode, Categorization.Bundle.value))
-#         self.ui.unknownButton.clicked.connect(partial(self.setColorCode, Categorization.Unknown.value))
-#         self.ui.restButton.clicked.connect(partial(self.setColorCode, Categorization.Rest.value))
-#         self.ui.flatButton.clicked.connect(partial(self.setColorCode, Categorization.Flat.value))
-#         self.ui.transaprentBagButton.clicked.connect(partial(self.setColorCode, Categorization.TransparentBag.value))
-#
-#
-# # ----------------------------------------------------------------------------------------------------------------------
-# #   Set Shortcuts for QGraphicsView
-# # ----------------------------------------------------------------------------------------------------------------------
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence.ZoomIn, self.mView, self.zoomIn)
-#         QtWidgets.QShortcut(QtGui.QKeySequence.ZoomOut, self.mView, self.zoomOut)
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), self.mView,
-#                             activated=partial(self.load_image, Instructions.NextItem.value))
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), self.mView,
-#                             activated=partial(self.load_image, Instructions.BackItem.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), self.mView,
-#                             activated=partial(self.mScene.setCurrentInstruction, Instructions.NoInstruction,
-#                                               Categorization.Box.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_A), self.mView,
-#                             activated=partial(self.mScene.setCurrentInstruction, Instructions.PolygonInstruction,
-#                                               Categorization.Box.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_X), self.mView, self.mScene.removeAllPolygone)
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Y), self.mView, self.mScene.removePolygon)
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_1), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.Box.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_2), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.Bag.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3), self.mView,
-#                                 activated=partial(self.setColorCode, Categorization.Bundle.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_4), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.Unknown.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_5), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.Rest.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_6), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.Flat.value))
-#
-#         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_7), self.mView,
-#                             activated=partial(self.setColorCode, Categorization.TransparentBag.value))
-#
-#
-# # ----------------------------------------------------------------------------------------------------------------------
-# #   Set Categorization with from images with ColorCodes
-# # ----------------------------------------------------------------------------------------------------------------------
-#
-#     def setColorCode(self, catrgory: str):
-#         self.mScene.setCurrentInstruction(Instructions.PolygonInstruction, catrgory)
-#
-# # ----------------------------------------------------------------------------------------------------------------------
-# #   Set View Modification with ZoomIn/-Out
-# # ----------------------------------------------------------------------------------------------------------------------
-#
-#     @QtCore.Slot()
-#     def zoomIn(self):
-#         self.zoom(2)
-#
-#     @QtCore.Slot()
-#     def zoomOut(self):
-#         self.zoom(1 / 2)
-#
-#     def zoom(self, f):
-#         self.mView.scale(f, f)
-#         if self.mView.scene() is not None:
-#             self.mView.centerOn(self.mView.scene().imageItem)
-#
-#     def showEvent(self, event: QtGui.QShowEvent):
-#         self.mView.fitInView(self.mScene.sceneRect(), QtCore.Qt.KeepAspectRatio)
-#
-# # ----------------------------------------------------------------------------------------------------------------------
-# #   Load Images in QGraphicsScene and fit in QGraphicsView
-# # ----------------------------------------------------------------------------------------------------------------------
-#
-#     @QtCore.Slot()
-#     def load_image(self, imageNavigation):
-#         self.mScene.removeAllPolygone()
-#         if imageNavigation == 1 and self.counterImages < self.realpathImages.__len__() - 1:
-#             self.counterImages = self.counterImages + 1
-#         elif imageNavigation == 0 and self.counterImages > 0:
-#             self.counterImages = self.counterImages - 1
-#         else:
-#             self.counterImages = 0
-#
-#         if self.realpathImages[self.counterImages]:
-#             self.mScene.load_image(self.realpathImages[self.counterImages])
-#             self.mView.fitInView(self.mScene.imageItem, QtCore.Qt.KeepAspectRatio)
-#             self.mView.centerOn(self.mScene.imageItem)
-
-#
-# class MainWindow(QMainWindow):
-#     def __init__(self, parent=None):
-#         super(MainWindow, self).__init__(parent)
-
-
-# if __name__ == '__main__':
-#     app = QtWidgets.QApplication(sys.argv)
-#     # m = MainWindow()
-#     # w = WidgetWindow(m)
-#     # m.show()
-#     w = WidgetWindow()
-#     w.show()
-#     sys.exit(app.exec_())
