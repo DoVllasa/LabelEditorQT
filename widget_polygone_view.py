@@ -24,8 +24,8 @@ class WidgetWindow(QWidget):
         self.mView.setScene(self.mScene)
         self.counterImages = 0
         self.colorNum = 0
-        # self.directory = '/Users/dominim/Desktop/TestData'
-        self.directory = '/Users/dominimvllasa/Desktop/TestData'
+        self.directory = '/Users/dominim/Desktop/TestData'
+        # self.directory = '/Users/dominimvllasa/Desktop/TestData'
         # self.directory = '/home/dominim/Desktop/Data/wa1122/wa1122/png_rgb/t000'
         self.filenames = [f for f in listdir(self.directory) if isfile(join(os.path.realpath(self.directory), f))]
         self.realpathImages = []
