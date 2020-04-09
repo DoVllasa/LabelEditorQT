@@ -6,6 +6,8 @@ from os import listdir
 from os.path import isfile, join
 from warnings import warn
 from PySide2 import QtWidgets, QtGui, QtCore
+import copy
+
 from PySide2.QtWidgets import QWidget, QMainWindow
 from PySide2.QtGui import QColor
 from widget import Ui_Widget
@@ -172,6 +174,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
                 self.categorizedPolys[categorizationOfPolygone] = createTmpListCoord
             self.polygonPoints = []
 
+
     def setCurrentInstruction(self, instruction, category: str):
         self.currentInstruction = instruction
         self.polygonItem = PolygonAnnotation()
@@ -179,20 +182,25 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItem.setBrush(self.colorDefinition[category])
         self.addItem(self.polygonItem)
         self.polygonItems.append(self.polygonItem)
-
-        # for i in self.polygonItems:
-        #     if len(i.mPoints) != 0:
-        #         for k in self.colorDefinition.keys():
-        #             if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-        #                 if k not in self.savedCategoryDictonary:
-        #                     polyTmpPointsCoord = []
-        #                     polyTmpPointsCoord.append(i.mPoints)
-        #                     self.savedCategoryDictonary[k] = polyTmpPointsCoord
-        #                     break
-        #                 elif i.mPoints not in self.savedCategoryDictonary[k]:
-        #                     self.savedCategoryDictonary[k].append(i.mPoints)
-        #                     break
-        # print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
+        print('BEVORBEOVR', self.savedCategoryDictonary)
+        self.savedCategoryDictonary = {}
+        for i in self.polygonItems:
+            if len(i.mPoints) != 0:
+                for k in self.colorDefinition.keys():
+                    if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
+                        listTest = copy.copy(i.mPoints)
+                        if k not in self.savedCategoryDictonary:
+                            polyTmpPointsCoord = []
+                            polyTmpPointsCoord.append(listTest)
+                            self.savedCategoryDictonary[k] = polyTmpPointsCoord
+                            # self.savedCategoryDictonary[k] = listTest
+                            break
+                        elif listTest not in self.savedCategoryDictonary[k]:
+                            print('FAIL')
+                            # listTest = copy.copy(i.mPoints)
+                            self.savedCategoryDictonary[k].append(listTest)
+                            break
+        print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
             # self.getColorOfPoly.append(self.polygonItem.brush().color())
 
         # if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
@@ -212,27 +220,27 @@ class ImageScene(QtWidgets.QGraphicsScene):
 
 
 
-        if self.currentInstruction == Instructions.PolygonInstruction:
-            self.getColorOfPoly.append(self.polygonItem.brush().color())
-
-        if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
-            for i in self.colorDefinition.keys():
-                if self.colorDefinition[i].getRgb() == self.getColorOfPoly[0].getRgb():
-                    self.onCreateColorList(i)
-                    break
-
-                # print('CODELIST', self.savedCategoryDictonary)
-
-    def onCreateColorList(self, var):
-        if var not in self.savedCategoryDictonary:
-            polyTmpPointsCoord = []
-            polyTmpPointsCoord.append(self.polygonPoints)
-            self.savedCategoryDictonary[var] = polyTmpPointsCoord
-        elif self.polygonPoints not in self.savedCategoryDictonary[var]:
-            self.savedCategoryDictonary[var].append(self.polygonPoints)
-        print(self.savedCategoryDictonary)
-        self.getColorOfPoly = []
-        self.polygonPoints = []
+    #     if self.currentInstruction == Instructions.PolygonInstruction:
+    #         self.getColorOfPoly.append(self.polygonItem.brush().color())
+    #
+    #     if len(self.polygonPoints) != 0 and len(self.getColorOfPoly) > 0:
+    #         for i in self.colorDefinition.keys():
+    #             if self.colorDefinition[i].getRgb() == self.getColorOfPoly[0].getRgb():
+    #                 self.onCreateColorList(i)
+    #                 break
+    #
+    #             # print('CODELIST', self.savedCategoryDictonary)
+    #
+    # def onCreateColorList(self, var):
+    #     if var not in self.savedCategoryDictonary:
+    #         polyTmpPointsCoord = []
+    #         polyTmpPointsCoord.append(self.polygonPoints)
+    #         self.savedCategoryDictonary[var] = polyTmpPointsCoord
+    #     elif self.polygonPoints not in self.savedCategoryDictonary[var]:
+    #         self.savedCategoryDictonary[var].append(self.polygonPoints)
+    #     print(self.savedCategoryDictonary)
+    #     self.getColorOfPoly = []
+    #     self.polygonPoints = []
 
     def mousePressEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -241,10 +249,9 @@ class ImageScene(QtWidgets.QGraphicsScene):
 
     def positionAddPoint(self, position):
         self.polygonItem.removeLastPoint()
-
         self.polygonItem.addPoint(position)
         self.polygonItem.addPoint(position)
-        self.polygonPoints.append(position)
+        # self.polygonPoints.append(position)
 
     def mouseMoveEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -290,11 +297,10 @@ class ImageScene(QtWidgets.QGraphicsScene):
             while len(k.mPoints) > 0:
                 k.removeLastPoint()
             self.removeItem(k)
-        self.polygonPoints = []
         self.savedCategoryDictonary = {}
         self.polygonItems = []
-                # for i in self.selectedItems():
-                #     self.removeItem(i)
+        # for i in self.selectedItems():
+        #     self.removeItem(i)
 
 
 
