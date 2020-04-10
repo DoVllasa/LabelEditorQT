@@ -5,7 +5,8 @@ from os.path import isfile, join
 from PySide2 import QtWidgets, QtGui, QtCore
 from PySide2.QtWidgets import QWidget
 from widget import Ui_Widget
-from widget_polygone_edit import Instructions, ImageScene, Categorization
+from widget_polygone_edit import Instructions, ImageScene, Categorization, imagePolygon
+from edit_gen_polygon import PolygonEditor
 
 
 class WidgetWindow(QWidget):
@@ -21,8 +22,8 @@ class WidgetWindow(QWidget):
         self.mView = self.ui.graphicsView
         self.mScene = ImageScene(self)
         self.mView.setScene(self.mScene)
+        self.getPolyItems = None
         self.counterImages = 0
-        self.colorNum = 0
         self.directory = '/Users/dominim/Desktop/TestData'
         # self.directory = '/Users/dominimvllasa/Desktop/TestData'
         # self.directory = '/home/dominim/Desktop/Data/wa1122/wa1122/png_rgb/t000'
@@ -100,7 +101,6 @@ class WidgetWindow(QWidget):
         QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_7), self.mView,
                             activated=partial(self.setColorCode, Categorization.TransparentBag.value))
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 #   Set Categorization with from images with ColorCodes
 # ----------------------------------------------------------------------------------------------------------------------
@@ -135,6 +135,7 @@ class WidgetWindow(QWidget):
     @QtCore.Slot()
     def load_image(self, imageNavigation):
         self.mScene.removeAllPolygone()
+        self.getInformationFromViewPoly(imagePolygon)
         if imageNavigation == 1 and self.counterImages < self.realpathImages.__len__() - 1:
             self.counterImages = self.counterImages + 1
         elif imageNavigation == 0 and self.counterImages > 0:
@@ -146,3 +147,12 @@ class WidgetWindow(QWidget):
             self.mScene.load_image(self.realpathImages[self.counterImages])
             self.mView.fitInView(self.mScene.imageItem, QtCore.Qt.KeepAspectRatio)
             self.mView.centerOn(self.mScene.imageItem)
+
+# ----------------------------------------------------------------------------------------------------------------------
+#   Informationhandling for edit_gen_polygon
+# ----------------------------------------------------------------------------------------------------------------------
+    def getInformationFromViewPoly(self, polyDict: dict):
+        self.getPolyItems = polyDict
+        PolygonEditor.getImagePolygonDictonary(self.getPolyItems)
+        # print('POLYITEMS', self.getPolyItems)
+

@@ -2,6 +2,7 @@ from enum import Enum
 from warnings import warn
 from PySide2 import QtWidgets, QtGui, QtCore
 import copy
+from edit_gen_polygon import *
 
 
 class PolygonItemsDisplay(QtWidgets.QGraphicsPathItem):
@@ -85,8 +86,6 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
             self.mPoints[i] = self.mapFromScene(p)
             self.setPolygon(QtGui.QPolygonF(self.mPoints))
 
-
-
     def move_item(self, index, pos):
         if 0 <= index < len(self.mItems):
             item = self.mItems[index]
@@ -128,7 +127,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.imageItem.setPixmap(QtGui.QPixmap(filename))
         self.setSceneRect(self.imageItem.boundingRect())
         self.imageName = filename
-        print('POLYGONE', imagePolygon)
+        # print('POLYGONE', imagePolygon)
         if filename in imagePolygon:
             # print(imagePolygon)
             imagePolyData = imagePolygon[filename]
@@ -160,23 +159,22 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItem.setBrush(self.colorDefinition[category])
         self.addItem(self.polygonItem)
         self.polygonItems.append(self.polygonItem)
-        print('BEVORBEOVR', self.savedCategoryDictonary)
         self.savedCategoryDictonary = {}
         for i in self.polygonItems:
             if len(i.mPoints) != 0:
                 for k in self.colorDefinition.keys():
                     if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-                        listTest = copy.copy(i.mPoints)
+                        newCopyPointsList = copy.copy(i.mPoints)
                         if k not in self.savedCategoryDictonary:
                             polyTmpPointsCoord = []
-                            polyTmpPointsCoord.append(listTest)
+                            polyTmpPointsCoord.append(newCopyPointsList)
                             self.savedCategoryDictonary[k] = polyTmpPointsCoord
                             break
-                        elif listTest not in self.savedCategoryDictonary[k]:
+                        elif newCopyPointsList not in self.savedCategoryDictonary[k]:
                             print('FAIL')
-                            self.savedCategoryDictonary[k].append(listTest)
+                            self.savedCategoryDictonary[k].append(newCopyPointsList)
                             break
-        print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
+        # print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
 
     def mousePressEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -234,9 +232,7 @@ imagePolygon = {}
 def setInformationFromImage(catgorizedDict: dict, name: str):
     if name != '':
         imagePolygon[name] = catgorizedDict
-
-    print('ImagePoly', imagePolygon)
-    # edit_gen_polygon.PolygonEditor.callDict(imagePolygon)
+    # print('ImagePoly', imagePolygon)
 
 
 class Instructions(Enum):
@@ -256,6 +252,10 @@ class Categorization(Enum):
     Rest = 'Rest'
     Flat = 'Flat'
     TransparentBag = 'Transparent bag'
+
+class SignalObject(QtCore.QObject):
+
+    sig = QtCore.Signal(object)
 
 
 ''' Mit item.mPoints[0].x() oder y(), bekommt man die reinen float numbers, wichtig, wenn man später die reinen Koordinaten benötigt
