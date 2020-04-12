@@ -164,7 +164,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
             if len(i.mPoints) != 0:
                 for k in self.colorDefinition.keys():
                     if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-                        newCopyPointsList = copy.copy(i.mPoints)
+                        newCopyPointsList = copy.copy(i.mPoints[:-1])
                         if k not in self.savedCategoryDictonary:
                             polyTmpPointsCoord = []
                             polyTmpPointsCoord.append(newCopyPointsList)
@@ -194,28 +194,33 @@ class ImageScene(QtWidgets.QGraphicsScene):
     def removePolygon(self):
         categorizationType = None
         if self.polygonItem:
-            for items in self.selectedItems():
+            print('SAVED', self.savedCategoryDictonary)
+            for item in self.selectedItems():
                 try:
-                    allCoordinatesFromItem = items.mPoints
+                    allCoordinatesFromItem = item.mPoints[:-1]
+                    print('ALLPOINTS', allCoordinatesFromItem)
                 except AttributeError:
                     warn('You tried to remove before finishing')
                     return
                 for i in self.colorDefinition.keys():
-                    if self.colorDefinition[i].getRgb() == items.brush().color().getRgb():
+                    if self.colorDefinition[i].getRgb() == item.brush().color().getRgb():
                         categorizationType = i
                         break
                 newCoordFromPoly = []
                 for itemsCoordinates in self.savedCategoryDictonary[categorizationType]:
+                    print('ITEMPOINTS', itemsCoordinates)
                     if allCoordinatesFromItem != itemsCoordinates:
                         newCoordFromPoly.append(itemsCoordinates)
                 if len(newCoordFromPoly) != 0:
+                    print('TESTSETSES')
                     self.savedCategoryDictonary[categorizationType] = newCoordFromPoly
                 else:
                     del self.savedCategoryDictonary[categorizationType]
-                while len(items.mPoints) > 0:
-                    items.removeLastPoint()
+                while len(item.mPoints) > 0:
+                    item.removeLastPoint()
             for i in self.selectedItems():
                 i.removeLastPoint()
+            print('SAVEDSAVED', self.savedCategoryDictonary)
 
     def removeAllPolygone(self):
         setInformationFromImage(self.savedCategoryDictonary, self.imageName)

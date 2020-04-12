@@ -40,13 +40,13 @@ class WidgetWindow(QWidget):
 #   initialize Buttons for drawing Polygone
 # ----------------------------------------------------------------------------------------------------------------------
 
-        self.ui.boxButton.setStyleSheet("color: #FF0000")  # Red 255, 0, 0
-        self.ui.bagButton.setStyleSheet("color: #0000FF")  # blue 0, 0, 255
-        self.ui.bundleButton.setStyleSheet("color: #00FF00")  # Green 0, 255, 0
-        self.ui.unknownButton.setStyleSheet("color: #FF7F24")  # orange 255, 127, 36
-        self.ui.restButton.setStyleSheet("color: #9B30FF")  # purple 155, 48, 255
-        self.ui.flatButton.setStyleSheet("color: #FFFF00")  # pink 255, 255, 0
-        self.ui.transaprentBagButton.setStyleSheet("color: #00BFFF")  # Lightblue 0, 191, 255
+        # self.ui.boxButton.setStyleSheet("color: #FF0000")  # Red 255, 0, 0
+        # self.ui.bagButton.setStyleSheet("color: #0000FF")  # blue 0, 0, 255
+        # self.ui.bundleButton.setStyleSheet("color: #00FF00")  # Green 0, 255, 0
+        # self.ui.unknownButton.setStyleSheet("color: #FF7F24")  # orange 255, 127, 36
+        # self.ui.restButton.setStyleSheet("color: #9B30FF")  # purple 155, 48, 255
+        # self.ui.flatButton.setStyleSheet("color: #FFFF00")  # pink 255, 255, 0
+        # self.ui.transaprentBagButton.setStyleSheet("color: #00BFFF")  # Lightblue 0, 191, 255
 
         self.ui.boxButton.clicked.connect(partial(self.setColorCode, Categorization.Box.value))
         self.ui.bagButton.clicked.connect(partial(self.setColorCode, Categorization.Bag.value))

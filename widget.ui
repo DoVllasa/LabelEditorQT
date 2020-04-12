@@ -29,20 +29,24 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QLabel" name="label">
+        <property name="maximumSize">
          <size>
-          <width>20</width>
-          <height>40</height>
+          <width>16777215</width>
+          <height>60</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="restButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(155, 48, 255, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Rest</string>
         </property>
@@ -50,6 +54,10 @@
       </item>
       <item>
        <widget class="QPushButton" name="unknownButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(255, 127, 36, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Unkown</string>
         </property>
@@ -57,6 +65,10 @@
       </item>
       <item>
        <widget class="QPushButton" name="transaprentBagButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(0, 191, 255, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>transparent bag</string>
         </property>
@@ -64,6 +76,10 @@
       </item>
       <item>
        <widget class="QPushButton" name="flatButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(255, 255, 0, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Flat</string>
         </property>
@@ -71,6 +87,10 @@
       </item>
       <item>
        <widget class="QPushButton" name="bundleButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(0, 255, 0, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Bundle</string>
         </property>
@@ -78,6 +98,10 @@
       </item>
       <item>
        <widget class="QPushButton" name="bagButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(0, 0, 255, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Bag</string>
         </property>
@@ -85,23 +109,27 @@
       </item>
       <item>
        <widget class="QPushButton" name="boxButton">
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x0:0, y0:0, x0:1, y0:0, stop:0 rgba(255, 0, 0, 255));
+height: 20px;</string>
+        </property>
         <property name="text">
          <string>Box</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QLabel" name="label_2">
+        <property name="maximumSize">
          <size>
-          <width>20</width>
-          <height>40</height>
+          <width>16777215</width>
+          <height>60</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
