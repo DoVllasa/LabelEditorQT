@@ -59,7 +59,6 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
         self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges, True)
         self.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mItems = []
-        self.test =[]
 
     def number_of_points(self):
         return len(self.mItems)
@@ -92,7 +91,6 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
             item.setEnabled(False)
             item.setPos(pos)
             self.movePoint(index, pos)
-            self.test.append(pos)
             item.setEnabled(True)
 
     def itemChange(self, change, value):
@@ -164,17 +162,19 @@ class ImageScene(QtWidgets.QGraphicsScene):
             if len(i.mPoints) != 0:
                 for k in self.colorDefinition.keys():
                     if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-                        newCopyPointsList = copy.copy(i.mPoints[:-1])
+                        # newCopyPointsList = copy.copy(i.mPoints[:-1])
+                        # newCopyPointsList = i.mPoints[:-1]
                         if k not in self.savedCategoryDictonary:
                             polyTmpPointsCoord = []
-                            polyTmpPointsCoord.append(newCopyPointsList)
+                            # polyTmpPointsCoord.append(newCopyPointsList)
+                            polyTmpPointsCoord.append(i.mPoints[:-1])
                             self.savedCategoryDictonary[k] = polyTmpPointsCoord
                             break
-                        elif newCopyPointsList not in self.savedCategoryDictonary[k]:
+                        elif i.mPoints[:-1] not in self.savedCategoryDictonary[k]:
                             print('FAIL')
-                            self.savedCategoryDictonary[k].append(newCopyPointsList)
+                            self.savedCategoryDictonary[k].append(i.mPoints[:-1])
                             break
-        # print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
+        print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
 
     def mousePressEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
