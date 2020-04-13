@@ -184,11 +184,8 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.polygonItem.addPoint(position)
         self.polygonItem.addPoint(position)
 
-    def mouseMoveEvent(self, event):
-        if self.currentInstruction == Instructions.PolygonInstruction:
-            self.polygonItem.movePoint(self.polygonItem.numberOfPoints() - 1, event.scenePos())
+    def savePolygonInDictonary(self):
         self.savedCategoryDictonary = {}
-
         for i in self.polygonItems:
             if len(i.mPoints) != 0:
                 polyCoordinates = i.mPoints[:-1]
@@ -203,6 +200,11 @@ class ImageScene(QtWidgets.QGraphicsScene):
                             self.savedCategoryDictonary[k].append(polyCoordinates)
                             break
         # print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
+
+    def mouseMoveEvent(self, event):
+        if self.currentInstruction == Instructions.PolygonInstruction:
+            self.polygonItem.movePoint(self.polygonItem.numberOfPoints() - 1, event.scenePos())
+        self.savePolygonInDictonary()
         super(ImageScene, self).mouseMoveEvent(event)
 
     def removePolygon(self):
