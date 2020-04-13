@@ -1,8 +1,30 @@
+import copy
 from enum import Enum
 from warnings import warn
-from PySide2 import QtWidgets, QtGui, QtCore
-import copy
 from edit_gen_polygon import *
+
+
+class Instructions(Enum):
+    NoInstruction = 0
+    PolygonInstruction = 1
+    BackItem = 0
+    NextItem = 1
+
+# Über Categorization.Box.name ebenfall auf 'Box'
+# Farbcode abspeichern, also Box = 'QtColor(255,0,0)'
+
+
+class Categorization(Enum):
+    Box = 'Box'
+    Bag = 'Bag'
+    Bundle = 'Bundle'
+    Unknown = 'unknown'
+    Rest = 'Rest'
+    Flat = 'Flat'
+    TransparentBag = 'Transparent bag'
+
+''' Mit item.mPoints[0].x() oder y(), bekommt man die reinen float numbers, wichtig, wenn man später die reinen Koordinaten benötigt
+'''
 
 
 class PolygonItemsDisplay(QtWidgets.QGraphicsPathItem):
@@ -14,7 +36,6 @@ class PolygonItemsDisplay(QtWidgets.QGraphicsPathItem):
     def __init__(self, annotationItem, index):
         super(PolygonItemsDisplay, self).__init__()
         self.mAnnotationItem = annotationItem
-        # print("ANNOTATIONITEM", self.mAnnotationItem)
         self.mIndex = index
         self.setPath(PolygonItemsDisplay.circle)
         self.setBrush(QtGui.QColor("blue"))
@@ -55,12 +76,12 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
         self.setAcceptHoverEvents(True)
 
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
-        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        # self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QtWidgets.QGraphicsItem.ItemSendsGeometryChanges, True)
         self.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.mItems = []
 
-    def number_of_points(self):
+    def numberOfPoints(self):
         return len(self.mItems)
 
     def addPoint(self, p):
@@ -85,7 +106,7 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
             self.mPoints[i] = self.mapFromScene(p)
             self.setPolygon(QtGui.QPolygonF(self.mPoints))
 
-    def move_item(self, index, pos):
+    def moveItem(self, index, pos):
         if 0 <= index < len(self.mItems):
             item = self.mItems[index]
             item.setEnabled(False)
@@ -96,7 +117,7 @@ class PolygonAnnotation(QtWidgets.QGraphicsPolygonItem):
     def itemChange(self, change, value):
         if change == QtWidgets.QGraphicsItem.ItemPositionHasChanged:
             for i, point in enumerate(self.mPoints):
-                self.move_item(i, self.mapToScene(point))
+                self.moveItem(i, self.mapToScene(point))
         return super(PolygonAnnotation, self).itemChange(change, value)
 
 
@@ -120,14 +141,11 @@ class ImageScene(QtWidgets.QGraphicsScene):
         self.colorDefinition[Categorization.Flat.value] = QtGui.QColor(255, 255, 0, 150)
         self.colorDefinition[Categorization.TransparentBag.value] = QtGui.QColor(0, 191, 255, 150)
 
-
     def load_image(self, filename):
         self.imageItem.setPixmap(QtGui.QPixmap(filename))
         self.setSceneRect(self.imageItem.boundingRect())
         self.imageName = filename
-        # print('POLYGONE', imagePolygon)
         if filename in imagePolygon:
-            # print(imagePolygon)
             imagePolyData = imagePolygon[filename]
             self.savedCategoryDictonary = imagePolyData
             for i in self.savedCategoryDictonary.keys():
@@ -136,10 +154,7 @@ class ImageScene(QtWidgets.QGraphicsScene):
     def createPoly(self, categorizationOfPolygone):
         self.categorizedPolys = {}
         for i in self.savedCategoryDictonary[categorizationOfPolygone]:
-            self.polygonItem = PolygonAnnotation()
-            self.polygonItem.setBrush(self.colorDefinition[categorizationOfPolygone])
-            self.addItem(self.polygonItem)
-            self.polygonItems.append(self.polygonItem)
+            self.setPolygonStructure(categorizationOfPolygone)
             for k in i:
                 self.positionAddPoint(k)
             if categorizationOfPolygone in self.categorizedPolys:
@@ -149,32 +164,15 @@ class ImageScene(QtWidgets.QGraphicsScene):
                 createTmpListCoord.append(i)
                 self.categorizedPolys[categorizationOfPolygone] = createTmpListCoord
 
+    def setPolygonStructure(self, polyCategorization):
+        self.polygonItem = PolygonAnnotation()
+        self.polygonItem.setBrush(self.colorDefinition[polyCategorization])
+        self.addItem(self.polygonItem)
+        self.polygonItems.append(self.polygonItem)
 
     def setCurrentInstruction(self, instruction, category: str):
         self.currentInstruction = instruction
-        self.polygonItem = PolygonAnnotation()
-        # self.setPolygonColor(category)
-        self.polygonItem.setBrush(self.colorDefinition[category])
-        self.addItem(self.polygonItem)
-        self.polygonItems.append(self.polygonItem)
-        self.savedCategoryDictonary = {}
-        for i in self.polygonItems:
-            if len(i.mPoints) != 0:
-                for k in self.colorDefinition.keys():
-                    if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
-                        # newCopyPointsList = copy.copy(i.mPoints[:-1])
-                        # newCopyPointsList = i.mPoints[:-1]
-                        if k not in self.savedCategoryDictonary:
-                            polyTmpPointsCoord = []
-                            # polyTmpPointsCoord.append(newCopyPointsList)
-                            polyTmpPointsCoord.append(i.mPoints[:-1])
-                            self.savedCategoryDictonary[k] = polyTmpPointsCoord
-                            break
-                        elif i.mPoints[:-1] not in self.savedCategoryDictonary[k]:
-                            print('FAIL')
-                            self.savedCategoryDictonary[k].append(i.mPoints[:-1])
-                            break
-        print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
+        self.setPolygonStructure(category)
 
     def mousePressEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
@@ -188,17 +186,31 @@ class ImageScene(QtWidgets.QGraphicsScene):
 
     def mouseMoveEvent(self, event):
         if self.currentInstruction == Instructions.PolygonInstruction:
-            self.polygonItem.movePoint(self.polygonItem.number_of_points() - 1, event.scenePos())
+            self.polygonItem.movePoint(self.polygonItem.numberOfPoints() - 1, event.scenePos())
+        self.savedCategoryDictonary = {}
+
+        for i in self.polygonItems:
+            if len(i.mPoints) != 0:
+                polyCoordinates = i.mPoints[:-1]
+                for k in self.colorDefinition.keys():
+                    if self.colorDefinition[k].getRgb() == i.brush().color().getRgb():
+                        if k not in self.savedCategoryDictonary:
+                            polyTmpPointsCoord = []
+                            polyTmpPointsCoord.append(polyCoordinates)
+                            self.savedCategoryDictonary[k] = polyTmpPointsCoord
+                            break
+                        elif polyCoordinates not in self.savedCategoryDictonary[k]:
+                            self.savedCategoryDictonary[k].append(polyCoordinates)
+                            break
+        # print('SAVEDSAVEDSAVED', self.savedCategoryDictonary)
         super(ImageScene, self).mouseMoveEvent(event)
 
     def removePolygon(self):
         categorizationType = None
         if self.polygonItem:
-            print('SAVED', self.savedCategoryDictonary)
             for item in self.selectedItems():
                 try:
                     allCoordinatesFromItem = item.mPoints[:-1]
-                    print('ALLPOINTS', allCoordinatesFromItem)
                 except AttributeError:
                     warn('You tried to remove before finishing')
                     return
@@ -208,11 +220,9 @@ class ImageScene(QtWidgets.QGraphicsScene):
                         break
                 newCoordFromPoly = []
                 for itemsCoordinates in self.savedCategoryDictonary[categorizationType]:
-                    print('ITEMPOINTS', itemsCoordinates)
                     if allCoordinatesFromItem != itemsCoordinates:
                         newCoordFromPoly.append(itemsCoordinates)
                 if len(newCoordFromPoly) != 0:
-                    print('TESTSETSES')
                     self.savedCategoryDictonary[categorizationType] = newCoordFromPoly
                 else:
                     del self.savedCategoryDictonary[categorizationType]
@@ -220,9 +230,9 @@ class ImageScene(QtWidgets.QGraphicsScene):
                     item.removeLastPoint()
             for i in self.selectedItems():
                 i.removeLastPoint()
-            print('SAVEDSAVED', self.savedCategoryDictonary)
 
     def removeAllPolygone(self):
+        print('TESTSET', self.savedCategoryDictonary)
         setInformationFromImage(self.savedCategoryDictonary, self.imageName)
         for k in self.polygonItems:
             while len(k.mPoints) > 0:
@@ -237,31 +247,3 @@ imagePolygon = {}
 def setInformationFromImage(catgorizedDict: dict, name: str):
     if name != '':
         imagePolygon[name] = catgorizedDict
-    # print('ImagePoly', imagePolygon)
-
-
-class Instructions(Enum):
-    NoInstruction = 0
-    PolygonInstruction = 1
-    BackItem = 0
-    NextItem = 1
-
-# Über Categorization.Box.name ebenfall auf 'Box'
-# Farbcode abspeichern, also Box = 'QtColor(255,0,0)'
-
-class Categorization(Enum):
-    Box = 'Box'
-    Bag = 'Bag'
-    Bundle = 'Bundle'
-    Unknown = 'unknown'
-    Rest = 'Rest'
-    Flat = 'Flat'
-    TransparentBag = 'Transparent bag'
-
-class SignalObject(QtCore.QObject):
-
-    sig = QtCore.Signal(object)
-
-
-''' Mit item.mPoints[0].x() oder y(), bekommt man die reinen float numbers, wichtig, wenn man später die reinen Koordinaten benötigt
-'''
